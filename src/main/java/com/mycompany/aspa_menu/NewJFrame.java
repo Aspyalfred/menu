@@ -3,12 +3,21 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package com.mycompany.aspa_menu;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+        
 
 /**
  *
  * @author Ryan Dave
  */
 public class NewJFrame extends javax.swing.JFrame {
+    private DefaultTableModel model;
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(NewJFrame.class.getName());
 
@@ -17,7 +26,88 @@ public class NewJFrame extends javax.swing.JFrame {
      */
     public NewJFrame() {
         initComponents();
+        
+         model = (DefaultTableModel) tblEmployees.getModel();
+
+    loadEmployees();
+
+    tblEmployees.getSelectionModel().addListSelectionListener(e -> {
+
+        if (!e.getValueIsAdjusting()) {
+
+            int row = tblEmployees.getSelectedRow();
+
+            if (row >= 0) {
+
+                txtID.setText(
+                    tblEmployees.getValueAt(row, 0).toString()
+                );
+
+                txtName.setText(
+                    tblEmployees.getValueAt(row, 1).toString()
+                );
+
+                cmbDepartment.setSelectedItem(
+                    tblEmployees.getValueAt(row, 2).toString()
+                );
+
+                txtPosition.setText(
+                    tblEmployees.getValueAt(row, 3).toString()
+                );
+
+                txtSalary.setText(
+                    tblEmployees.getValueAt(row, 4).toString()
+                );
+            }
+        }
+    });
     }
+    
+     private void loadEmployees() {
+
+    DefaultTableModel model =
+        (DefaultTableModel) tblEmployees.getModel();
+
+    model.setRowCount(0);
+
+    String sql =
+        "SELECT [ID], [Name], [Department], [Position], [Salary] " +
+        "FROM [Employees]";
+
+    try {
+
+        Connection con = Msconnect.conn();
+
+        if (con == null) {
+            return;
+        }
+
+        Statement st = con.createStatement();
+        ResultSet rs = st.executeQuery(sql);
+
+        while (rs.next()) {
+
+            model.addRow(new Object[]{
+                rs.getInt("ID"),
+                rs.getString("Name"),
+                rs.getString("Department"),
+                rs.getString("Position"),
+                rs.getDouble("Salary")
+            });
+        }
+
+        rs.close();
+        st.close();
+        con.close();
+
+    } catch (SQLException e) {
+
+        JOptionPane.showMessageDialog(
+            this,
+            "Error loading records:\n" + e.getMessage()
+        );
+    }
+}
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -30,6 +120,10 @@ public class NewJFrame extends javax.swing.JFrame {
 
         jLabel1 = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
+        txtSalary = new javax.swing.JTextField();
+        txtID = new javax.swing.JTextField();
+        txtName = new javax.swing.JTextField();
+        txtPosition = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
@@ -37,155 +131,397 @@ public class NewJFrame extends javax.swing.JFrame {
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
+        btnclear = new javax.swing.JButton();
+        btndelete = new javax.swing.JButton();
+        btnupdate = new javax.swing.JButton();
+        btnadd1 = new javax.swing.JButton();
+        cmbDepartment = new javax.swing.JComboBox<>();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tblEmployees = new javax.swing.JTable();
+        txtSearch = new javax.swing.JTextField();
         jLabel9 = new javax.swing.JLabel();
-        txtSnacksQty = new javax.swing.JTextField();
-        txtDrinks = new javax.swing.JTextField();
-        txtDrinkQty = new javax.swing.JTextField();
-        txtSnacks = new javax.swing.JTextField();
-        btnProcced = new javax.swing.JButton();
-        jPanel2 = new javax.swing.JPanel();
-        jLabel10 = new javax.swing.JLabel();
-        jLabel11 = new javax.swing.JLabel();
-        jLabel12 = new javax.swing.JLabel();
-        btnChange = new javax.swing.JButton();
-        txtChange = new javax.swing.JTextField();
-        txtSubtot = new javax.swing.JTextField();
-        txtCash = new javax.swing.JTextField();
-        btnOrder = new javax.swing.JButton();
+        btnSearch = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 36)); // NOI18N
-        jLabel1.setText("FOOD ORDER SYSTEM");
-        getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 30, -1, -1));
+        jLabel1.setText("CRUD");
+        getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 10, -1, -1));
 
         jPanel1.setBackground(new java.awt.Color(0, 255, 255));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        jPanel1.add(txtSalary, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 220, 140, 30));
+        jPanel1.add(txtID, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 20, 140, 30));
+        jPanel1.add(txtName, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 70, 140, 30));
+        jPanel1.add(txtPosition, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 170, 140, 30));
 
-        jLabel2.setFont(new java.awt.Font("Segoe UI", 3, 24)); // NOI18N
-        jLabel2.setText("MENU");
-        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, -1, -1));
+        jLabel2.setText("Salary");
+        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 230, -1, -1));
 
-        jLabel3.setFont(new java.awt.Font("Segoe UI", 3, 14)); // NOI18N
-        jLabel3.setText("DRINKS:");
-        jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 50, -1, -1));
+        jLabel3.setText("Employee Id:");
+        jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 20, -1, -1));
 
-        jLabel4.setFont(new java.awt.Font("Segoe UI", 2, 14)); // NOI18N
-        jLabel4.setText("1.Coke     P20");
-        jPanel1.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 80, -1, -1));
+        jLabel4.setText("Employee Id:");
+        jPanel1.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 20, -1, -1));
 
-        jLabel5.setFont(new java.awt.Font("Segoe UI", 2, 14)); // NOI18N
-        jLabel5.setText("2.Sprite    P25");
-        jPanel1.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 120, -1, -1));
+        jLabel5.setText("Fullname");
+        jPanel1.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 70, -1, -1));
 
-        jLabel6.setFont(new java.awt.Font("Segoe UI", 3, 14)); // NOI18N
-        jLabel6.setText("SNACKS:");
-        jPanel1.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 170, -1, -1));
+        jLabel6.setText("Department");
+        jPanel1.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 130, -1, -1));
 
-        jLabel7.setFont(new java.awt.Font("Segoe UI", 2, 14)); // NOI18N
-        jLabel7.setText("1.Fries     P25");
-        jPanel1.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 200, -1, -1));
+        jLabel7.setText("Position");
+        jPanel1.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 180, -1, -1));
 
-        jLabel8.setFont(new java.awt.Font("Segoe UI", 2, 14)); // NOI18N
-        jLabel8.setText("2.Burger   P30");
-        jPanel1.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 240, -1, -1));
+        jLabel8.setText("Position");
+        jPanel1.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 180, -1, -1));
 
-        jLabel9.setFont(new java.awt.Font("Segoe UI", 3, 24)); // NOI18N
-        jLabel9.setText("QUANTITY:");
-        jPanel1.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 10, -1, -1));
-        jPanel1.add(txtSnacksQty, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 230, 140, 30));
-        jPanel1.add(txtDrinks, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 70, 140, 30));
-        jPanel1.add(txtDrinkQty, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 110, 140, 30));
-        jPanel1.add(txtSnacks, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 190, 140, 30));
+        btnclear.setText("Clear");
+        btnclear.addActionListener(this::btnclearActionPerformed);
+        jPanel1.add(btnclear, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 310, -1, -1));
 
-        btnProcced.setText("PROCCED");
-        btnProcced.addActionListener(this::btnProccedActionPerformed);
-        jPanel1.add(btnProcced, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 290, 120, 40));
+        btndelete.setText("Delete");
+        btndelete.addActionListener(this::btndeleteActionPerformed);
+        jPanel1.add(btndelete, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 280, -1, -1));
 
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 90, 390, 350));
+        btnupdate.setText("Update");
+        btnupdate.addActionListener(this::btnupdateActionPerformed);
+        jPanel1.add(btnupdate, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 310, -1, -1));
 
-        jPanel2.setBackground(new java.awt.Color(0, 204, 204));
-        jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        btnadd1.setText("Add");
+        btnadd1.addActionListener(this::btnadd1ActionPerformed);
+        jPanel1.add(btnadd1, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 280, -1, -1));
 
-        jLabel10.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        jLabel10.setText("PAYMENT");
-        jPanel2.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 10, -1, -1));
+        cmbDepartment.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "HR", "Finance", "Programmer", "DOG SHIT" }));
+        cmbDepartment.addActionListener(this::cmbDepartmentActionPerformed);
+        jPanel1.add(cmbDepartment, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 130, -1, -1));
 
-        jLabel11.setFont(new java.awt.Font("Segoe UI", 3, 14)); // NOI18N
-        jLabel11.setText("Sub Total:");
-        jPanel2.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 70, -1, -1));
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 90, 300, 350));
 
-        jLabel12.setFont(new java.awt.Font("Segoe UI", 3, 14)); // NOI18N
-        jLabel12.setText("Cash:");
-        jPanel2.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 120, -1, -1));
+        tblEmployees.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null}
+            },
+            new String [] {
+                "ID", "Fullanme", "Department", "position", "salary"
+            }
+        ));
+        jScrollPane1.setViewportView(tblEmployees);
 
-        btnChange.setText("Change");
-        btnChange.addActionListener(this::btnChangeActionPerformed);
-        jPanel2.add(btnChange, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 190, 80, 30));
-        jPanel2.add(txtChange, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 190, 130, 30));
-        jPanel2.add(txtSubtot, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 70, 130, 30));
-        jPanel2.add(txtCash, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 120, 130, 30));
+        getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 150, 340, 300));
+        getContentPane().add(txtSearch, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 110, 90, -1));
 
-        btnOrder.setText("ORDER AGAIN");
-        btnOrder.addActionListener(this::btnOrderActionPerformed);
-        jPanel2.add(btnOrder, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 280, 210, 40));
+        jLabel9.setText("Search");
+        getContentPane().add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 110, -1, -1));
 
-        getContentPane().add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 90, 250, 350));
+        btnSearch.setText("SEARCH");
+        getContentPane().add(btnSearch, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 110, -1, -1));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void btnProccedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProccedActionPerformed
-String drink = txtDrinks.getText();
-    int drinkQty = Integer.parseInt(txtDrinkQty.getText());
+    private void btnadd1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnadd1ActionPerformed
+ String idText = txtID.getText().trim();
+    String name = txtName.getText().trim();
+    String department = cmbDepartment.getSelectedItem().toString();
+    String position = txtPosition.getText().trim();
+    String salaryText = txtSalary.getText().trim();
 
-    String snack = txtSnacks.getText();
-    int snackQty = Integer.parseInt(txtSnacksQty.getText());
-
-    int drinkPrice = 0;
-    int snackPrice = 0;
-
-    // Drinks
-    if (drink.equals("1")) {
-        drinkPrice = 20;   
-    } else if (drink.equals("2")) {
-        drinkPrice = 25;   
+    // Check required fields
+    if (idText.isEmpty()) {
+        JOptionPane.showMessageDialog(
+            this,
+            "Please enter Employee ID."
+        );
+        txtID.requestFocus();
+        return;
     }
 
-    // Snacks
-    if (snack.equals("1")) {
-        snackPrice = 25;   
-    } else if (snack.equals("2")) {
-        snackPrice = 30;   
+    if (name.isEmpty()) {
+        JOptionPane.showMessageDialog(
+            this,
+            "Please enter Full Name."
+        );
+        txtName.requestFocus();
+        return;
     }
 
-    int subtotal = (drinkPrice * drinkQty) 
-                 + (snackPrice * snackQty);
+    if (position.isEmpty()) {
+        JOptionPane.showMessageDialog(
+            this,
+            "Please enter Position."
+        );
+        txtPosition.requestFocus();
+        return;
+    }
 
-    txtSubtot.setText(String.valueOf(subtotal));          // TODO add your handling code here:
-    }//GEN-LAST:event_btnProccedActionPerformed
+    if (salaryText.isEmpty()) {
+        JOptionPane.showMessageDialog(
+            this,
+            "Please enter Salary."
+        );
+        txtSalary.requestFocus();
+        return;
+    }
 
-    private void btnChangeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnChangeActionPerformed
-    double subtotal = Double.parseDouble(txtSubtot.getText());
-    double cash = Double.parseDouble(txtCash.getText());
+    try {
 
-    double change = cash - subtotal;
+        int id = Integer.parseInt(idText);
+        double salary = Double.parseDouble(salaryText);
 
-    txtChange.setText(String.valueOf(change));         // TODO add your handling code here:
-    }//GEN-LAST:event_btnChangeActionPerformed
+        String sql =
+            "INSERT INTO Employees " +
+            "([ID], [Name], [Department], [Position], [Salary]) " +
+            "VALUES (?, ?, ?, ?, ?)";
 
-    private void btnOrderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnOrderActionPerformed
-    txtDrinks.setText("");
-    txtDrinkQty.setText("");
-    txtSnacks.setText("");
-    txtSnacksQty.setText("");
-    txtSubtot.setText("");
-    txtCash.setText("");
-    txtChange.setText("");
+        try (
+            Connection con = Msconnect.conn();
+            PreparedStatement pst = con.prepareStatement(sql)
+        ) {
 
-    txtDrinks.requestFocus();          // TODO add your handling code here:
-    }//GEN-LAST:event_btnOrderActionPerformed
+            if (con == null) {
+                return;
+            }
+
+            pst.setInt(1, id);
+            pst.setString(2, name);
+            pst.setString(3, department);
+            pst.setString(4, position);
+            pst.setDouble(5, salary);
+
+            pst.executeUpdate();
+
+            JOptionPane.showMessageDialog(
+                this,
+                "Employee Added Successfully!"
+            );
+
+            loadEmployees();
+
+            // Clear fields
+            txtID.setText("");
+            txtName.setText("");
+            cmbDepartment.setSelectedIndex(0);
+            txtPosition.setText("");
+            txtSalary.setText("");
+
+        }
+
+    } catch (NumberFormatException e) {
+
+        JOptionPane.showMessageDialog(
+            this,
+            "Employee ID and Salary must be numbers."
+        );
+
+    } catch (SQLException e) {
+
+        JOptionPane.showMessageDialog(
+            this,
+            "Database Error:\n" + e.getMessage()
+        );
+    }
+       // TODO add your handling code here:
+    }//GEN-LAST:event_btnadd1ActionPerformed
+
+    private void btnclearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnclearActionPerformed
+    txtID.setText("");
+    txtName.setText("");
+    txtPosition.setText("");
+    txtSalary.setText("");
+
+       if (cmbDepartment.getItemCount() > 0) {
+           cmbDepartment.setSelectedIndex(0);
+       }
+
+       txtSearch.setText("");
+
+       tblEmployees.clearSelection();        // TODO add your handling code here:
+    }//GEN-LAST:event_btnclearActionPerformed
+
+    private void btnupdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnupdateActionPerformed
+       String idText = txtID.getText().trim();
+    String name = txtName.getText().trim();
+    String department = cmbDepartment.getSelectedItem().toString();
+    String position = txtPosition.getText().trim();
+    String salaryText = txtSalary.getText().trim();
+
+    if (idText.isEmpty()) {
+        JOptionPane.showMessageDialog(
+            this,
+            "Please enter Employee ID."
+        );
+        txtID.requestFocus();
+        return;
+    }
+
+    if (name.isEmpty() || position.isEmpty() || salaryText.isEmpty()) {
+        JOptionPane.showMessageDialog(
+            this,
+            "Please complete all employee details."
+        );
+        return;
+    }
+
+    try {
+
+        int id = Integer.parseInt(idText);
+        double salary = Double.parseDouble(salaryText);
+
+        String sql =
+            "UPDATE Employees SET " +
+            "[Name] = ?, " +
+            "[Department] = ?, " +
+            "[Position] = ?, " +
+            "[Salary] = ? " +
+            "WHERE [ID] = ?";
+
+        try (
+            Connection con = Msconnect.conn();
+            PreparedStatement pst = con.prepareStatement(sql)
+        ) {
+
+            if (con == null) {
+                return;
+            }
+
+            pst.setString(1, name);
+            pst.setString(2, department);
+            pst.setString(3, position);
+            pst.setDouble(4, salary);
+            pst.setInt(5, id);
+
+            int rows = pst.executeUpdate();
+
+            if (rows > 0) {
+
+                JOptionPane.showMessageDialog(
+                    this,
+                    "Employee Updated Successfully!"
+                );
+
+                loadEmployees();
+
+            } else {
+
+                JOptionPane.showMessageDialog(
+                    this,
+                    "Employee ID " + id + " was not found."
+                );
+            }
+        }
+
+    } catch (NumberFormatException e) {
+
+        JOptionPane.showMessageDialog(
+            this,
+            "Employee ID and Salary must be numbers."
+        );
+
+    } catch (SQLException e) {
+
+        JOptionPane.showMessageDialog(
+            this,
+            "Database Error:\n" + e.getMessage()
+        );
+    }
+       // TODO add your handling code here:
+    }//GEN-LAST:event_btnupdateActionPerformed
+
+    private void btndeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btndeleteActionPerformed
+String idText = txtID.getText().trim();
+
+    if (idText.isEmpty()) {
+
+        JOptionPane.showMessageDialog(
+            this,
+            "Please enter Employee ID to delete."
+        );
+
+        txtID.requestFocus();
+        return;
+    }
+
+    try {
+
+        int id = Integer.parseInt(idText);
+
+        int confirm = JOptionPane.showConfirmDialog(
+            this,
+            "Are you sure you want to delete Employee ID " + id + "?",
+            "Confirm Delete",
+            JOptionPane.YES_NO_OPTION
+        );
+
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        String sql =
+            "DELETE FROM Employees WHERE [ID] = ?";
+
+        try (
+                Connection con = Msconnect.conn();
+            PreparedStatement pst = con.prepareStatement(sql)
+        ) {
+
+            if (con == null) {
+                return;
+            }
+
+            pst.setInt(1, id);
+
+            int rows = pst.executeUpdate();
+
+            if (rows > 0) {
+
+                JOptionPane.showMessageDialog(
+                    this,
+                    "Employee Deleted Successfully!"
+                );
+
+                loadEmployees();
+
+                // Clear fields
+                txtID.setText("");
+                txtName.setText("");
+                cmbDepartment.setSelectedIndex(0);
+                txtPosition.setText("");
+                txtSalary.setText("");
+
+            } else {
+
+                JOptionPane.showMessageDialog(
+                    this,
+                    "Employee ID " + id + " was not found."
+                );
+            }
+        }
+
+    } catch (NumberFormatException e) {
+
+        JOptionPane.showMessageDialog(
+            this,
+            "Employee ID must be a number."
+        );
+
+    } catch (SQLException e) {
+
+        JOptionPane.showMessageDialog(
+            this,
+            "Database Error:\n" + e.getMessage()
+        );
+    }
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btndeleteActionPerformed
+
+    private void cmbDepartmentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbDepartmentActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_cmbDepartmentActionPerformed
 
     /**
      * @param args the command line arguments
@@ -213,13 +549,13 @@ String drink = txtDrinks.getText();
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnChange;
-    private javax.swing.JButton btnOrder;
-    private javax.swing.JButton btnProcced;
+    private javax.swing.JButton btnSearch;
+    private javax.swing.JButton btnadd1;
+    private javax.swing.JButton btnclear;
+    private javax.swing.JButton btndelete;
+    private javax.swing.JButton btnupdate;
+    private javax.swing.JComboBox<String> cmbDepartment;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel10;
-    private javax.swing.JLabel jLabel11;
-    private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -229,13 +565,12 @@ String drink = txtDrinks.getText();
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
-    private javax.swing.JTextField txtCash;
-    private javax.swing.JTextField txtChange;
-    private javax.swing.JTextField txtDrinkQty;
-    private javax.swing.JTextField txtDrinks;
-    private javax.swing.JTextField txtSnacks;
-    private javax.swing.JTextField txtSnacksQty;
-    private javax.swing.JTextField txtSubtot;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTable tblEmployees;
+    private javax.swing.JTextField txtID;
+    private javax.swing.JTextField txtName;
+    private javax.swing.JTextField txtPosition;
+    private javax.swing.JTextField txtSalary;
+    private javax.swing.JTextField txtSearch;
     // End of variables declaration//GEN-END:variables
 }
